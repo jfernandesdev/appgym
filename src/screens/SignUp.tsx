@@ -3,17 +3,25 @@ import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
+import { useNavigation } from "@react-navigation/native";
+import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
+
 import BackgroundSignIn from "@assets/background.png";
 import Logo from "@assets/logo.svg";
 
-
 export function SignUp() {
+  const navigationAuth = useNavigation<AuthNavigatorRoutesProps>();
+
+  const handleBackToSignIn = () => {
+    navigationAuth.navigate("signIn");
+  }
+
   return (
     <ScrollView 
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      <VStack flex={1} bg="$gray700">
+      <VStack flex={1}>
         <Image 
           source={BackgroundSignIn} 
           defaultSource={BackgroundSignIn}
@@ -41,7 +49,11 @@ export function SignUp() {
           </Center>
 
           <Center flex={1} justifyContent="flex-end" mt="$4">
-            <Button title="Voltar para o login" variant="outline" />
+            <Button 
+              title="Voltar para o login" 
+              variant="outline" 
+              onPress={handleBackToSignIn}
+            />
           </Center>
         </VStack>
       </VStack>
