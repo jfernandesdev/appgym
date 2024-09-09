@@ -16,7 +16,7 @@ export default function App() {
         <StatusBar 
           backgroundColor='transparent'
           barStyle='light-content'
-          translucent={true}
+          translucent
         />
 
       {fontsLoaded ? <Routes />:  <Loading/> }
