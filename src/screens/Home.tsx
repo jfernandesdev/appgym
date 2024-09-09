@@ -1,29 +1,34 @@
 import { useState } from "react";
+import { FlatList } from "react-native";
 import { HStack, VStack } from "@gluestack-ui/themed";
 
 import { HomeHeader } from "@components/HomeHeader";
 import { MuscleGroup } from "@components/MuscleGroup";
 
 export function Home() {
-  const [groupSelected, setGroupSelected] = useState("costa");
+  const [groups, setGroups] = useState(["Costas", "Bíceps", "Tríceps", "Ombro"]);
+  const [groupSelected, setGroupSelected] = useState("Costas");
 
   return (
     <VStack flex={1}>
       <HomeHeader />
 
-      <HStack gap="$3">
-        <MuscleGroup 
-          label="Costa" 
-          isActive={groupSelected === "costa"}
-          onPress={() => setGroupSelected("costa")}
-        />
+      <FlatList 
+        data={groups}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <MuscleGroup
+            label={item}
+            isActive={groupSelected === item}
+            onPress={() => setGroupSelected(item)}
+          />
+        )}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 32 }}
+        style={{ marginVertical: 40, maxHeight: 44, minHeight: 44 }}
 
-        <MuscleGroup
-          label="Ombro"
-          isActive={groupSelected === "ombro"}
-          onPress={() => setGroupSelected("ombro")}
-        />
-      </HStack>
+      />
     </VStack>
   )
 }

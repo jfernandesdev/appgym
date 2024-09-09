@@ -9,6 +9,7 @@ type Props = ComponentProps<typeof Button> & {
 export function MuscleGroup({ label, isActive = false, ...rest }: Props) {
   return (
     <Button 
+      mr="$2"
       minWidth="$24"
       h="$10"
       bg="$gray600"
