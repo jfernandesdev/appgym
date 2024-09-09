@@ -14,12 +14,12 @@ export default function App() {
   return (
     <GluestackUIProvider config={config}>
         <StatusBar 
-          backgroundColor='transparent'
           barStyle='light-content'
+          backgroundColor='transparent'
           translucent
         />
 
-      {fontsLoaded ? <Routes />:  <Loading/> }
+      {fontsLoaded ? <Routes /> :  <Loading/> }
     </GluestackUIProvider>
   );
 }
