@@ -1,9 +1,20 @@
-import { Center, Text } from "@gluestack-ui/themed";
+import { Center, VStack } from "@gluestack-ui/themed";
+import { ScreenHeader } from "@components/ScreenHeader";
+import { UserPhoto } from "@components/UserPhoto";
 
 export function Profile() {
   return (
-    <Center flex={1}>
-      <Text color="white">Profile</Text>
-    </Center>
+    <VStack flex={1}>
+      <ScreenHeader title="Perfil" />
+
+      <Center py="$8">
+        <UserPhoto 
+          source={{ uri: "https://github.com/jfernandesdev.png" }} alt="Foto de perfil"
+          w="$40"
+          h="$40" 
+        />
+
+      </Center>
+    </VStack>
   )
 }
