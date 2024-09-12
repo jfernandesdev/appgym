@@ -1,16 +1,25 @@
 import { useState } from "react";
 import { FlatList } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Heading, HStack, Text, VStack } from "@gluestack-ui/themed";
 
 import { HomeHeader } from "@components/HomeHeader";
 import { MuscleGroup } from "@components/MuscleGroup";
 import { ExerciseCard } from "@components/ExerciseCard";
 
-import { data } from "../storage/mock-data";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
+
+import { categories, data } from "../storage/mock-data";
 
 export function Home() {
-  const [groups, setGroups] = useState(["Costas", "Peitoral", "Bíceps", "Tríceps", "Pernas", "Ombro"]);
+  const [groups, setGroups] = useState(categories);
   const [groupSelected, setGroupSelected] = useState("Costas");
+
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  const handleOpenExerciseDetails = () => {
+    navigation.navigate("exercise")
+  }
 
   return (
     <VStack flex={1}>
@@ -48,6 +57,7 @@ export function Home() {
               thumbnail={item.thumbnail} 
               title={item.title} 
               description={item.description} 
+              onPress={handleOpenExerciseDetails}
             />   
           )}
           showsVerticalScrollIndicator={false}

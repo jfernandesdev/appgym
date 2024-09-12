@@ -22,12 +22,13 @@ export function HistoryCard(data: IHistoryItem) {
       justifyContent="space-between"
       alignItems="center"
     >
-      <VStack>
+      <VStack flex={1} mr="$5">
         <Heading 
           color="$white" 
           fontSize="$md" 
           fontFamily="$heading" 
           textTransform="capitalize"
+          numberOfLines={1}
         >
           {category}
         </Heading>

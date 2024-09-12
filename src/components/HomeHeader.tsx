@@ -1,3 +1,4 @@
+import { TouchableOpacity } from "react-native";
 import { HStack, Heading, Text, VStack, Icon } from "@gluestack-ui/themed";
 import { LogOut } from "lucide-react-native";
 
@@ -17,7 +18,9 @@ export function HomeHeader() {
         <Heading color="$gray100" fontSize="$md">Jeferson Fernandes</Heading>
       </VStack>
 
-      <Icon as={LogOut} color="$gray200" size="xl" />
+      <TouchableOpacity>
+        <Icon as={LogOut} color="$gray200" size="xl" />
+      </TouchableOpacity>
     </HStack>
   );
 }

@@ -6,6 +6,7 @@ import RemadaCurvadaThumbnail from "@assets/thumbnail/remada-curvada.png";
 import AgachamentoLivreThumbnail from "@assets/thumbnail/agachamento-livre.png";
 import RemadaUnilateralThumbnail from "@assets/thumbnail/remada-unilateral.png";
 
+export const categories = ["Costas", "Peitoral", "Bíceps", "Tríceps", "Pernas", "Ombro"];
 
 export const data = [
   {
