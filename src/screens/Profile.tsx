@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ScrollView, TouchableOpacity, Alert } from "react-native";
-import { Center, Heading, VStack, Text } from "@gluestack-ui/themed";
+import { ScrollView, TouchableOpacity } from "react-native";
+import { Center, Heading, VStack, Text, useToast } from "@gluestack-ui/themed";
 
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -9,9 +9,12 @@ import { ScreenHeader } from "@components/ScreenHeader";
 import { UserPhoto } from "@components/UserPhoto";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { ToastMessage } from "@components/ToastMessage";
 
 export function Profile() {
   const [userPhoto, setUserPhoto] = useState("https://github.com/jfernandesdev.png");
+
+  const toast = useToast();
 
   const handleUserPhotoSelect = async () => {
     try {
@@ -33,7 +36,18 @@ export function Profile() {
   
         // Restrição de fotos maiores que 5MB
         if(photoInfo.size && (photoInfo.size / 1024 / 1024) > 5) {
-          return Alert.alert("Essa imagem é muito grande. Por favor escolha outra de até 5MB.");
+          return toast.show({
+            placement: "top",
+            render: ({ id }) => (
+              <ToastMessage 
+                id={id} 
+                action="error"
+                title="Image muito grande!" 
+                description="Por favor selecione outra de até 5MB"  
+                onClose={() => toast.close(id)} 
+              />
+            )
+          });
         }
   
         setUserPhoto(photoURI);
