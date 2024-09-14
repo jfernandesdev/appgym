@@ -1,4 +1,5 @@
 import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
+import { useForm, Controller } from "react-hook-form";
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
@@ -11,10 +12,16 @@ import Logo from "@assets/logo.svg";
 
 
 export function SignIn() {
+  const { control, handleSubmit } = useForm();
+
   const navigationAuth = useNavigation<AuthNavigatorRoutesProps>();
 
   const handleNewAccount = () => {
     navigationAuth.navigate("signUp");
+  }
+
+  const handleSignIn = (data: any) => {
+    console.log(data);
   }
 
   return (
@@ -40,11 +47,42 @@ export function SignIn() {
             </Text>
           </Center>
 
-          <Center gap="$2" mt="$20">
+          <Center gap="$2" mt="$4">
             <Heading color="$gray100" mb="$4">Acesse sua conta</Heading>
-            <Input placeholder="E-mail" keyboardType="email-address" autoCapitalize="none"/>
-            <Input placeholder="Senha" secureTextEntry />
-            <Button title="Acessar" />
+
+            <Controller 
+              control={control}
+              name="email"
+              render={({field : { onChange, value }}) => (
+                <Input 
+                  placeholder="E-mail" 
+                  keyboardType="email-address" 
+                  autoCapitalize="none"
+                  onChangeText={onChange}
+                  value={value}
+              />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value }}) => (
+                <Input 
+                  placeholder="Senha" 
+                  secureTextEntry 
+                  onChangeText={onChange}
+                  value={value}
+                  onSubmitEditing={handleSubmit(handleSignIn)}
+                  returnKeyType="send"
+                />
+              )}
+            />
+
+            <Button 
+              title="Acessar" 
+              onPress={handleSubmit(handleSignIn)}
+            />
           </Center>
 
           <Center flex={1} justifyContent="flex-end" mt="$4">
