@@ -14,7 +14,7 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { ToastMessage } from "@components/ToastMessage";
 
-import UserPhotoDefault from "@assets/userPhotoDefault.png";
+import userPhotoDefault from "@assets/userPhotoDefault.png";
 
 type ProfileProps = {
   userPhoto?: string;
@@ -101,7 +101,7 @@ export function Profile() {
             name="userPhoto"
             render={({ field: { value }}) => (
               <UserPhoto
-                source={value ? { uri: value}: UserPhotoDefault}
+                source={value ? { uri: value } : userPhotoDefault}
                 alt="Foto de perfil"
                 size="xl"
               />
