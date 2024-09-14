@@ -1,6 +1,9 @@
-import { useState } from "react";
 import { ScrollView, TouchableOpacity } from "react-native";
+import { useForm, Controller } from "react-hook-form";
 import { Center, Heading, VStack, Text, useToast } from "@gluestack-ui/themed";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
 
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
@@ -11,8 +14,33 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { ToastMessage } from "@components/ToastMessage";
 
+import UserPhotoDefault from "@assets/userPhotoDefault.png";
+
+type ProfileProps = {
+  userPhoto?: string;
+  name: string;
+  email: string;
+  oldPassword?: string;
+  newPassword?: string;
+}
+
+const profileSchema = yup.object({
+  userPhoto: yup.string(),
+  name: yup.string().required("Informe seu nome"),
+  email: yup.string().required("Informe seu e-mail").email("E-mail inválido"),
+  oldPassword: yup.string().min(6, "A senha deve ter no mínimo 6 dígitos"),
+  newPassword: yup.string().min(6, "A senha deve ter no mínimo 6 dígitos")
+})
+
 export function Profile() {
-  const [userPhoto, setUserPhoto] = useState("https://github.com/jfernandesdev.png");
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProfileProps>({
+    resolver: yupResolver(profileSchema),
+    defaultValues: {
+      userPhoto: 'https://github.com/jfernandesdev.png',
+      name: "Jeferson Fernandes",
+      email: "jfernandes.dev@gmail.com"
+    }
+  });
 
   const toast = useToast();
 
@@ -50,11 +78,16 @@ export function Profile() {
           });
         }
   
-        setUserPhoto(photoURI);
+        setValue('userPhoto', photoURI);
       }
     } catch (error) {
       console.error("Erro ao selecionar nova foto", error); 
     }
+  }
+
+  const handleUpdateProfile = (data: ProfileProps) => {
+    //TODO
+    console.log(data);
   }
 
   return (
@@ -63,10 +96,16 @@ export function Profile() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
         <Center mt="$6" px="$10">
-          <UserPhoto
-            source={{ uri: userPhoto }}
-            alt="Foto de perfil"
-            size="xl"
+          <Controller 
+            control={control}
+            name="userPhoto"
+            render={({ field: { value }}) => (
+              <UserPhoto
+                source={value ? { uri: value}: UserPhotoDefault}
+                alt="Foto de perfil"
+                size="xl"
+              />
+            )}
           />
 
           <TouchableOpacity onPress={handleUserPhotoSelect}>
@@ -80,18 +119,34 @@ export function Profile() {
           </TouchableOpacity>
 
           <Center w="$full" gap="$4">
-            <Input
-              placeholder="Seu nome"
-              bg="$gray600"
+            <Controller 
+              control={control}
+              name="name"
+              render={({ field: {onChange, value}}) => (
+                <Input
+                  placeholder="Seu nome"
+                  bg="$gray600"
+                  onChangeText={onChange}
+                  value={value}
+                  errorMessage={errors.name?.message}
+                />
+              )}
             />
 
-            <Input
-              placeholder="E-mail"
-              value="jfernandes.dev@gmail.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              bg="$gray600"
-              isReadOnly
+            <Controller 
+              control={control}
+              name="email"
+              render={({ field: {value}}) => (
+                <Input
+                  placeholder="E-mail"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  bg="$gray600"
+                  isReadOnly
+                  value={value}
+                  errorMessage={errors.email?.message}
+                />
+              )}
             />
           </Center>
 
@@ -107,19 +162,41 @@ export function Profile() {
           </Heading>
 
           <Center w="$full" gap="$4" mb="$8">
-            <Input 
-              placeholder="Senha antiga" 
-              secureTextEntry 
-              bg="$gray600" 
+            <Controller
+              control={control}
+              name="oldPassword"
+              render={({ field: { onChange, value }}) => (
+                <Input 
+                  placeholder="Senha antiga" 
+                  secureTextEntry 
+                  bg="$gray600" 
+                  onChangeText={onChange}
+                  value={value}
+                  errorMessage={errors.oldPassword?.message}
+                />
+              )}
             />
-            <Input 
-              placeholder="Nova senha" 
-              secureTextEntry 
-              bg="$gray600" 
+
+            <Controller 
+              control={control}
+              name="newPassword"
+              render={({ field: {onChange, value }}) => (
+                <Input 
+                  placeholder="Nova senha" 
+                  secureTextEntry 
+                  bg="$gray600"
+                  onChangeText={onChange}
+                  value={value} 
+                  errorMessage={errors.newPassword?.message}
+                />
+              )}
             />
           </Center>
 
-          <Button title="Atualizar" />
+          <Button 
+            title="Atualizar" 
+            onPress={handleSubmit(handleUpdateProfile)} 
+          />
         </Center>
       </ScrollView>
     </VStack>

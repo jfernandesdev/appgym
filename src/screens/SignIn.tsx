@@ -1,5 +1,7 @@
 import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
 import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
@@ -10,9 +12,20 @@ import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 import BackgroundSignIn from "@assets/background.png";
 import Logo from "@assets/logo.svg";
 
+type FormDataProps = {
+  email: string;
+  password: string;
+}
+
+const signInSchema = yup.object({
+  email: yup.string().required("Informe seu e-mail").email("E-mail inválido"),
+  password: yup.string().required("Informe sua senha").min(6, "A senha deve ter no mínimo 6 dígitos")
+});
 
 export function SignIn() {
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit, formState: { errors }} = useForm<FormDataProps>({
+    resolver: yupResolver(signInSchema)
+  });
 
   const navigationAuth = useNavigation<AuthNavigatorRoutesProps>();
 
@@ -20,7 +33,8 @@ export function SignIn() {
     navigationAuth.navigate("signUp");
   }
 
-  const handleSignIn = (data: any) => {
+  const handleSignIn = (data: FormDataProps) => {
+    //TODO
     console.log(data);
   }
 
@@ -60,6 +74,7 @@ export function SignIn() {
                   autoCapitalize="none"
                   onChangeText={onChange}
                   value={value}
+                  errorMessage={errors.email?.message}
               />
               )}
             />
@@ -75,6 +90,7 @@ export function SignIn() {
                   value={value}
                   onSubmitEditing={handleSubmit(handleSignIn)}
                   returnKeyType="send"
+                  errorMessage={errors.password?.message}
                 />
               )}
             />
