@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "@gluestack-ui/themed";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -35,6 +35,7 @@ const signUpSchema = yup.object({
 });
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false);
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
     resolver: yupResolver(signUpSchema)
   });
@@ -47,9 +48,9 @@ export function SignUp() {
   }
 
   const handleSignUp = async (data: FormDataProps) => {
-    const { name, email, password } = data;
-
     try {
+      setIsLoading(true);
+      const { name, email, password } = data;
       const response = await api.post('/users', { name, email, password });
       console.log(response.data);
       
@@ -69,6 +70,8 @@ export function SignUp() {
           />
         )
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -159,6 +162,7 @@ export function SignUp() {
             <Button
               title="Criar e acessar"
               onPress={handleSubmit(handleSignUp)}
+              isLoading={isLoading}
             />
           </Center>
 

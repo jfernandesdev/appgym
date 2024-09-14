@@ -1,4 +1,5 @@
-import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
+import { useState } from "react";
+import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "@gluestack-ui/themed";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -6,11 +7,15 @@ import * as yup from "yup";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 
+import { useAuth } from "@hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 
+import { AppError } from "@utils/AppError";
+
 import BackgroundSignIn from "@assets/background.png";
 import Logo from "@assets/logo.svg";
+import { ToastMessage } from "@components/ToastMessage";
 
 type FormDataProps = {
   email: string;
@@ -23,19 +28,43 @@ const signInSchema = yup.object({
 });
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
   const { control, handleSubmit, formState: { errors }} = useForm<FormDataProps>({
     resolver: yupResolver(signInSchema)
   });
 
   const navigationAuth = useNavigation<AuthNavigatorRoutesProps>();
+  const { signIn } = useAuth();
+  const toast = useToast();
 
   const handleNewAccount = () => {
     navigationAuth.navigate("signUp");
   }
 
-  const handleSignIn = (data: FormDataProps) => {
-    //TODO
-    console.log(data);
+  const handleSignIn = async ({ email, password }: FormDataProps) => {
+    try {
+      setIsLoading(true);
+      await signIn(email, password);
+
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : "Não foi possível entrar. Tente novamente.";
+
+      return toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            align="center"
+          />
+        )
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -98,6 +127,7 @@ export function SignIn() {
             <Button 
               title="Acessar" 
               onPress={handleSubmit(handleSignIn)}
+              isLoading={isLoading}
             />
           </Center>
 
