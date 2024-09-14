@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { createContext, ReactNode, useState } from "react";
 
 import { api } from "@services/api";
+
+import { storageAuthTokenSave, storageAuthTokenGet, storageAuthTokenRemove } from "@storage/storageAuthToken";
 import { storageUserSave, storageUserGet, storageUserRemove } from "@storage/storageUser";
 
 import { UserDto } from "@dtos/UserDto";
@@ -26,22 +28,30 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      setIsLoadingUserStorageData(true);
       const { data } = await api.post('/sessions', { email, password });
   
-      if(data.user) {
-        setUser(data.user);
-        storageUserSave(data.user);
+      if(data.user && data.token) {
+        await storageUserSave(data.user);
+        await storageAuthTokenSave(data.token);
+
+        updateUserAndToken(data.user, data.token);
       }
     } catch (error) {
       throw error;
+    } finally {
+      setIsLoadingUserStorageData(false);
     }
   }
 
   const signOut = async () => {
     try {
       setIsLoadingUserStorageData(true);
+
       setUser({} as UserDto);
       await storageUserRemove();
+      await storageAuthTokenRemove();
+      
     } catch (error) {
       throw error;
     } finally {
@@ -51,16 +61,24 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   const loadUserData = async () => {
     try {
+      setIsLoadingUserStorageData(true);
+      
       const userLogged = await storageUserGet();
+      const token = await storageAuthTokenGet();
   
-      if(userLogged) {
-        setUser(userLogged);
+      if (userLogged && token) {
+        updateUserAndToken(userLogged, token);
       }
     } catch (error) {
       throw error;
     } finally {
       setIsLoadingUserStorageData(false);
     }
+  }
+
+  const updateUserAndToken = (userData: UserDto, token: string) => {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setUser(userData);
   }
 
   useEffect(() => {
