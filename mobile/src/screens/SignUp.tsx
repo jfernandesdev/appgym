@@ -10,6 +10,7 @@ import { Input } from "@components/Input";
 import { Button } from "@components/Button";
 import { ToastMessage } from "@components/ToastMessage";
 
+import { useAuth } from "@hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 
@@ -41,6 +42,7 @@ export function SignUp() {
   });
 
   const toast = useToast();
+  const { signIn } = useAuth();
   const navigationAuth = useNavigation<AuthNavigatorRoutesProps>();
 
   const handleBackToSignIn = () => {
@@ -50,10 +52,11 @@ export function SignUp() {
   const handleSignUp = async (data: FormDataProps) => {
     try {
       setIsLoading(true);
+
       const { name, email, password } = data;
-      const response = await api.post('/users', { name, email, password });
-      console.log(response.data);
+      await api.post('/users', { name, email, password });
       
+      await signIn(email, password);
     } catch (error) {
       console.log(error);
       const isAppError = error instanceof AppError;
