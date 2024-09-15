@@ -41,7 +41,7 @@ Um aplicativo para academias, desenvolvido para gerenciar exercícios organizado
 
 | SignIn | SignUp | Home | Details | History | Profile |
 | --- | --- | --- | --- | --- | --- | 
-| <img src="" /> | <img src="" /> | <img src="" /> | <img src="" /> | <img src="" /> | <img src="" /> |
+| <img src="https://github.com/jfernandesdev/appgym/blob/00deb13f62cbca45625f198e8db11964f1e0ec29/mobile/assets/screenshot-doc/signIn.jpg" /> | <img src="https://github.com/jfernandesdev/appgym/blob/00deb13f62cbca45625f198e8db11964f1e0ec29/mobile/assets/screenshot-doc/signUp.jpg" /> | <img src="https://github.com/jfernandesdev/appgym/blob/00deb13f62cbca45625f198e8db11964f1e0ec29/mobile/assets/screenshot-doc/home.jpg" /> | <img src="https://github.com/jfernandesdev/appgym/blob/00deb13f62cbca45625f198e8db11964f1e0ec29/mobile/assets/screenshot-doc/details.jpg" /> | <img src="https://github.com/jfernandesdev/appgym/blob/00deb13f62cbca45625f198e8db11964f1e0ec29/mobile/assets/screenshot-doc/history.jpg" /> | <img src="https://github.com/jfernandesdev/appgym/blob/00deb13f62cbca45625f198e8db11964f1e0ec29/mobile/assets/screenshot-doc/profile.jpg" /> |
 
 ---
 
