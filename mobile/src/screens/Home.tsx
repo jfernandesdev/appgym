@@ -1,25 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Heading, HStack, Text, VStack } from "@gluestack-ui/themed";
+import { Heading, HStack, Text, useToast, VStack } from "@gluestack-ui/themed";
 
 import { HomeHeader } from "@components/HomeHeader";
 import { MuscleGroup } from "@components/MuscleGroup";
 import { ExerciseCard } from "@components/ExerciseCard";
+import { ToastMessage } from "@components/ToastMessage";
 
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
-import { categories, data } from "../storage/mock-data";
+import { api } from "@services/api";
+
+import { AppError } from "@utils/AppError";
+
+import { data } from "../storage/mock-data";
 
 export function Home() {
-  const [groups, setGroups] = useState(categories);
-  const [groupSelected, setGroupSelected] = useState("Costas");
+  const [groups, setGroups] = useState<string[]>([]);
+  const [groupSelected, setGroupSelected] = useState<string | null>(null);
 
   const navigation = useNavigation<AppNavigatorRoutesProps>();
+  const toast = useToast();
 
   const handleOpenExerciseDetails = () => {
     navigation.navigate("exercise")
   }
+
+  const fetchGroups = async () => {
+    try {
+      const response = await api.get('/groups');
+      
+      if(response.data) {
+        setGroups(response.data);
+        const firstGroup = response.data[0];
+        setGroupSelected(firstGroup);
+      }
+
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : "Não foi possível carregar os grupos musculares.";
+
+      return toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        )
+      });
+    }
+  }
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
 
   return (
     <VStack flex={1}>
@@ -31,7 +69,7 @@ export function Home() {
         renderItem={({ item }) => (
           <MuscleGroup
             label={item}
-            isActive={groupSelected.toLowerCase() === item.toLowerCase()}
+            isActive={groupSelected?.toLowerCase() === item.toLowerCase()}
             onPress={() => setGroupSelected(item)}
           />
         )}
