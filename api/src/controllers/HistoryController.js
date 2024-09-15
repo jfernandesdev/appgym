@@ -53,7 +53,8 @@ class HistoryController {
       throw new AppError("Informe o id do exercício.");
     }
 
-    await knex("history").insert({ user_id, exercise_id });
+    const currentTime = dayjs().format();
+    await knex("history").insert({ user_id, exercise_id, created_at: currentTime });
 
     return response.status(201).json();
   }

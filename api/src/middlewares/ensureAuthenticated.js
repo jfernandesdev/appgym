@@ -21,7 +21,7 @@ async function ensureAuthenticated(request, response, next) {
 
     return next();
   } catch {
-    throw new AppError("token.invalid", 401);
+    throw new AppError("Token inválido.", 401);
   }
 }
 
