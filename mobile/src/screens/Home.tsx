@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FlatList } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Heading, HStack, Text, useToast, VStack } from "@gluestack-ui/themed";
 
 import { HomeHeader } from "@components/HomeHeader";
@@ -15,9 +15,11 @@ import { api } from "@services/api";
 import { AppError } from "@utils/AppError";
 
 import { data } from "../storage/mock-data";
+import { ExerciseDto } from "@dtos/ExerciseDto";
 
 export function Home() {
   const [groups, setGroups] = useState<string[]>([]);
+  const [exercises, setExercises] = useState<ExerciseDto[]>([]);
   const [groupSelected, setGroupSelected] = useState<string | null>(null);
 
   const navigation = useNavigation<AppNavigatorRoutesProps>();
@@ -55,9 +57,37 @@ export function Home() {
     }
   }
 
+  const fetchExercisesByGroup = async () => {
+    try {
+      const response = await api.get(`/exercises/bygroup/${groupSelected}`);
+      if (response.data) {
+        setExercises(response.data);
+      }
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : "Não foi possível carregar os exercícios.";
+
+      return toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        )
+      });
+    }
+  }
+
   useEffect(() => {
     fetchGroups();
   }, []);
+
+  useFocusEffect(useCallback(() => {
+    fetchExercisesByGroup();
+  }, [groupSelected]));
 
   return (
     <VStack flex={1}>
@@ -82,19 +112,17 @@ export function Home() {
       <VStack px="$8" mb="$4">
         <HStack justifyContent="space-between" alignItems="center">
           <Heading color="$gray200" fontSize="$md" fontFamily="$heading">Exercícios</Heading>
-          <Text color="$gray200" fontSize="$sm" fontFamily="$body">{data ? data.length : 0}</Text>
+          <Text color="$gray200" fontSize="$sm" fontFamily="$body">{exercises ? exercises.length : 0}</Text>
         </HStack>
       </VStack>
 
       <VStack px="$8" flex={1}>
         <FlatList 
-          data={data}
-          keyExtractor={(item) => item.id}
+          data={exercises}
+          keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ExerciseCard 
-              thumbnail={item.thumbnail} 
-              title={item.title} 
-              description={item.description} 
+              data={item}
               onPress={handleOpenExerciseDetails}
             />   
           )}

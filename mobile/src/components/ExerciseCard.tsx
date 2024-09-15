@@ -2,37 +2,36 @@ import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { Heading, HStack, Icon, Image, Text, VStack } from "@gluestack-ui/themed";
 import { ChevronRight } from "lucide-react-native";
 
-import thumbnailPuxada from "@assets/thumbnail/puxada-frontal.png";
+import { ExerciseDto } from "@dtos/ExerciseDto";
+
+import { api } from "@services/api";
 
 type Props = TouchableOpacityProps & {
-  thumbnail: string;
-  title: string;
-  description: string;
+  data: ExerciseDto;
 };
 
-export function ExerciseCard({ thumbnail, title, description, ...rest }: Props ) {
+export function ExerciseCard({ data, ...rest }: Props ) {
   return (
     <TouchableOpacity {...rest}>
       <HStack bg="$gray500" rounded="$md" p="$2" mb="$3" alignItems="center">
-        {thumbnail && 
-          <Image 
-            source={thumbnail} 
-            alt="thumbnail do exercício"
-            rounded="$md" 
-            w="$16" 
-            h="$16" 
-            resizeMode="cover"
-            bg="$gray400"
-          />
-        }
+        <Image 
+          source={{ uri: `${api.defaults.baseURL}/exercise/thumb/${data.thumb}` }} 
+          alt="thumbnail do exercício"
+          rounded="$md" 
+          w="$16" 
+          h="$16" 
+          resizeMode="cover"
+          bg="$gray400"
+        />
 
         <VStack flex={1} ml="$4">
           <Heading 
             color="$white" 
             fontSize="$md" 
             fontFamily="$heading"
+            numberOfLines={1}
           >
-            {title}
+            {data.name}
           </Heading>
           <Text 
             color="$gray200" 
@@ -41,7 +40,7 @@ export function ExerciseCard({ thumbnail, title, description, ...rest }: Props )
             mt="$1" 
             numberOfLines={2}
           >
-            {description}
+            {data.series} séries x {data.repetitions} repetições
           </Text>
         </VStack>
         <Icon as={ChevronRight} color="$gray300" size="xl" />

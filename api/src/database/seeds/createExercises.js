@@ -130,14 +130,6 @@ exports.seed = async function (knex) {
       thumb: 'martelo_em_pe.png'
     },
     {
-      name: 'Rosca punho',
-      series: 4,
-      repetitions: 12,
-      group: 'antebraço',
-      demo: 'rosca_punho.gif',
-      thumb: 'rosca_punho.png'
-    },
-    {
       name: 'Leg press 45 graus',
       series: 4,
       repetitions: 12,
