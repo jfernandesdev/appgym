@@ -1,24 +1,73 @@
-import { HStack, VStack, Box, Image, Heading, Text, Icon } from "@gluestack-ui/themed";
+import { useState, useEffect } from "react";
+import { HStack, VStack, Box, Image, Heading, Text, Icon, useToast } from "@gluestack-ui/themed";
 import { ScrollView, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { ArrowLeft } from "lucide-react-native";
 
-import { Button } from "@components/Button";
-
+import { api } from "@services/api";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 
-import { ArrowLeft } from "lucide-react-native";
+import { ExerciseDto } from "@dtos/ExerciseDto";
+
+import { Button } from "@components/Button";
+import { Loading } from "@components/Loading";
+import { ToastMessage } from "@components/ToastMessage";
+
+import { AppError } from "@utils/AppError";
+
 import SeriesIcon from "@assets/series.svg";
 import RepetitionsIcon from "@assets/repetitions.svg";
 import BodyIcon from "@assets/body.svg";
 
-import PuxadaFrontalImage from "@assets/thumbnail/puxada-frontal.png";
+type RouteParamsProps =  {
+  exerciseId: number;
+}
 
 export function Exercise() {
+  const [exerciseSelected, setExerciseSelected] = useState<ExerciseDto>({} as ExerciseDto);
+  const [isLoading, setIsLoading] = useState(true);
+
   const navigation = useNavigation<AppNavigatorRoutesProps>();
+
+  const toast = useToast();
+  const routes = useRoute();
+
+  const { exerciseId } = routes.params as RouteParamsProps;
 
   const handleGoBack = () => {
     navigation.goBack();
   }
+
+  const fetchExercisesDetails = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`exercises/${exerciseId}`);
+      if(response.data) {
+        setExerciseSelected(response.data);
+      }
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : "Não foi possível buscar detalhes do exercício.";
+
+      return toast.show({
+        placement: "top",
+        render: ({ id }) => (
+          <ToastMessage
+            id={id}
+            action="error"
+            title={title}
+            onClose={() => toast.close(id)}
+          />
+        )
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchExercisesDetails();
+  }, [exerciseId])
 
   return (
     <VStack flex={1}>
@@ -29,47 +78,50 @@ export function Exercise() {
 
         <HStack justifyContent="space-between" alignItems="center" mt="$4" mb="$8">
           <Heading color="$gray100" fontFamily="$heading" fontSize="$lg" flexShrink={1}>
-            Puxada Lateral
+            {exerciseSelected.name}
           </Heading>
 
           <HStack alignItems="center">
             <BodyIcon />
             <Text color="$gray200" ml="$1" textTransform="capitalize" fontFamily="$body" fontSize="$md">
-              Ombro
+              {exerciseSelected.group}
             </Text>
           </HStack>
         </HStack>
       </VStack>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32}}>
-        <VStack p="$8">
-          <Image 
-            source={PuxadaFrontalImage} 
-            alt="Puxada Lateral" 
-            mb="$3"
-            resizeMode="cover"
-            h="$80"
-            w="$full"
-            rounded="$lg"
-          />
+      {isLoading ? <Loading /> : (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32}}>
+          <VStack p="$8">
+            <Box rounded="$lg" mb="$3" overflow="hidden">
+              <Image 
+                source={{ uri: `${api.defaults.baseURL}/exercise/demo/${exerciseSelected.demo}` }} 
+                alt="Puxada Lateral" 
+                resizeMode="cover"
+                h="$80"
+                w="$full"
+                rounded="$lg"
+              />
+            </Box>
 
-          <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
-            <HStack justifyContent="space-around" alignItems="center" mb="$6" mt="$5">
-              <HStack>
-                <SeriesIcon />
-                <Text color="$gray200" ml="$2">3 séries</Text>
+            <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
+              <HStack justifyContent="space-around" alignItems="center" mb="$6" mt="$5">
+                <HStack>
+                  <SeriesIcon />
+                  <Text color="$gray200" ml="$2">{exerciseSelected.series} séries</Text>
+                </HStack>
+
+                <HStack>
+                  <RepetitionsIcon />
+                  <Text color="$gray200" ml="$2">{exerciseSelected.repetitions} repetições</Text>
+                </HStack>
               </HStack>
 
-              <HStack>
-                <RepetitionsIcon />
-                <Text color="$gray200" ml="$2">12 repetições</Text>
-              </HStack>
-            </HStack>
-
-            <Button title="Marcar como realizado"></Button>
-          </Box>
-        </VStack>
-      </ScrollView>
+              <Button title="Marcar como realizado"></Button>
+            </Box>
+          </VStack>
+        </ScrollView>
+      )}
     </VStack>
   )
 }

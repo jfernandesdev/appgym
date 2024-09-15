@@ -14,26 +14,27 @@ import { api } from "@services/api";
 
 import { AppError } from "@utils/AppError";
 
-import { data } from "../storage/mock-data";
 import { ExerciseDto } from "@dtos/ExerciseDto";
+import { Loading } from "@components/Loading";
 
 export function Home() {
   const [groups, setGroups] = useState<string[]>([]);
   const [exercises, setExercises] = useState<ExerciseDto[]>([]);
   const [groupSelected, setGroupSelected] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const toast = useToast();
 
-  const handleOpenExerciseDetails = () => {
-    navigation.navigate("exercise")
+  const handleOpenExerciseDetails = (exerciseId: number) => {
+    navigation.navigate("exercise", { exerciseId })
   }
 
   const fetchGroups = async () => {
     try {
       const response = await api.get('/groups');
-      
-      if(response.data) {
+
+      if (response.data) {
         setGroups(response.data);
         const firstGroup = response.data[0];
         setGroupSelected(firstGroup);
@@ -59,6 +60,7 @@ export function Home() {
 
   const fetchExercisesByGroup = async () => {
     try {
+      setIsLoading(true);
       const response = await api.get(`/exercises/bygroup/${groupSelected}`);
       if (response.data) {
         setExercises(response.data);
@@ -78,6 +80,8 @@ export function Home() {
           />
         )
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -93,7 +97,7 @@ export function Home() {
     <VStack flex={1}>
       <HomeHeader />
 
-      <FlatList 
+      <FlatList
         data={groups}
         keyExtractor={(item) => item}
         renderItem={({ item }) => (
@@ -116,20 +120,22 @@ export function Home() {
         </HStack>
       </VStack>
 
-      <VStack px="$8" flex={1}>
-        <FlatList 
-          data={exercises}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <ExerciseCard 
-              data={item}
-              onPress={handleOpenExerciseDetails}
-            />   
-          )}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-      </VStack>
+      {isLoading ? <Loading /> :
+        <VStack px="$8" flex={1}>
+          <FlatList
+            data={exercises}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <ExerciseCard
+                data={item}
+                onPress={() => handleOpenExerciseDetails(item.id)}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          />
+        </VStack>
+      }
     </VStack>
   )
 }
