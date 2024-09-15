@@ -51,7 +51,6 @@ export function Home() {
             id={id}
             action="error"
             title={title}
-            onClose={() => toast.close(id)}
           />
         )
       });
@@ -60,7 +59,6 @@ export function Home() {
 
   const fetchExercisesByGroup = async () => {
     try {
-      setIsLoading(true);
       const response = await api.get(`/exercises/bygroup/${groupSelected}`);
       if (response.data) {
         setExercises(response.data);
@@ -76,7 +74,6 @@ export function Home() {
             id={id}
             action="error"
             title={title}
-            onClose={() => toast.close(id)}
           />
         )
       });
