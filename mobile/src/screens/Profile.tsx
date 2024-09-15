@@ -52,8 +52,9 @@ const profileSchema = yup.object({
 
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false);
-  const toast = useToast();
   const { user, updateUserProfile } = useAuth();
+  
+  const toast = useToast();
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProfileProps>({
     resolver: yupResolver(profileSchema),
@@ -98,7 +99,37 @@ export function Profile() {
           });
         }
 
-        setValue('avatar', photoURI);
+        const photoFile = {
+          name: photoSelected.assets[0].fileName,
+          uri: photoSelected.assets[0].uri,
+          type: photoSelected.assets[0].mimeType
+        } as any;
+
+        const userPhotoUploadForm = new FormData();
+        userPhotoUploadForm.append("avatar", photoFile);
+
+        const avatarUpdatedResponse = await api.patch("/users/avatar", userPhotoUploadForm, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+
+        const userUpdated = user;
+        userUpdated.avatar = avatarUpdatedResponse.data.avatar;
+        setValue('avatar', avatarUpdatedResponse.data.avatar);
+        await updateUserProfile(userUpdated);
+
+        toast.show({
+          placement: "top",
+          render: ({ id }) => (
+            <ToastMessage
+              id={id}
+              action="success"
+              title="Foto atualizada com sucesso!"
+              align="center"
+            />
+          )
+        });
       }
     } catch (error) {
       console.error("Erro ao selecionar nova foto", error);
@@ -163,7 +194,7 @@ export function Profile() {
             name="avatar"
             render={({ field: { value } }) => (
               <UserPhoto
-                source={value ? { uri: value } : userPhotoDefault}
+                source={value ? { uri: `${api.defaults.baseURL}/avatar/${value}` } : userPhotoDefault}
                 alt="Foto de perfil"
                 size="xl"
               />

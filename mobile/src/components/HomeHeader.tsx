@@ -3,6 +3,7 @@ import { HStack, Heading, Text, VStack, Icon } from "@gluestack-ui/themed";
 import { LogOut } from "lucide-react-native";
 
 import { useAuth } from "@hooks/useAuth";
+import { api } from "@services/api";
 
 import { UserPhoto } from "./UserPhoto";
 import userPhotoDefault from "@assets/userPhotoDefault.png";
@@ -13,7 +14,7 @@ export function HomeHeader() {
   return (
     <HStack bg="$gray600" pt="$16" pb="$5" px="$8" alignItems="center" gap="$4">
       <UserPhoto 
-        source={user.avatar ? { uri: user.avatar } : userPhotoDefault}
+        source={user.avatar ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` } : userPhotoDefault}
         alt="Foto usuário"
         w="$16"
         h="$16" 
