@@ -1,16 +1,12 @@
+import { HistoryDto } from "@dtos/HistoryDto";
 import { Heading, HStack, Text, VStack } from "@gluestack-ui/themed";
 
-export interface IHistoryItem {
-  id: string;
-  category: string;
-  description: string;
-  date: string;
-  hour: string;
-};
+type HistoryCardProps = {
+  data: HistoryDto;
+}
 
-export function HistoryCard(data: IHistoryItem) {
-  const { category, description, hour } = data;
-  
+export function HistoryCard({ data }: HistoryCardProps) {
+
   return (
     <HStack
       w="$full"
@@ -30,16 +26,16 @@ export function HistoryCard(data: IHistoryItem) {
           textTransform="capitalize"
           numberOfLines={1}
         >
-          {category}
+          {data.name}
         </Heading>
 
-        <Text color="$gray200" fontSize="$sm" fontFamily="$body" numberOfLines={1}>
-          {description}
+        <Text color="$gray200" fontSize="$sm" fontFamily="$body" numberOfLines={1} textTransform="capitalize">
+          {data.group}
         </Text>
       </VStack>
 
       <Text color="$gray300" fontSize="$sm" fontFamily="$body">
-        {hour}
+        {data.hour}
       </Text>
     </HStack>
   )
