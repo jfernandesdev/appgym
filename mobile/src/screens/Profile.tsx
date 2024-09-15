@@ -4,20 +4,21 @@ import { Center, Heading, VStack, Text, useToast } from "@gluestack-ui/themed";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
+import { useAuth } from "@hooks/useAuth";
 
-import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
 
-import { ScreenHeader } from "@components/ScreenHeader";
-import { UserPhoto } from "@components/UserPhoto";
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
+import { UserPhoto } from "@components/UserPhoto";
 import { ToastMessage } from "@components/ToastMessage";
+import { ScreenHeader } from "@components/ScreenHeader";
 
 import userPhotoDefault from "@assets/userPhotoDefault.png";
 
 type ProfileProps = {
-  userPhoto?: string;
+  avatar?: string;
   name: string;
   email: string;
   oldPassword?: string;
@@ -33,16 +34,17 @@ const profileSchema = yup.object({
 })
 
 export function Profile() {
+  const toast = useToast();
+  const { user } = useAuth();
+
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<ProfileProps>({
     resolver: yupResolver(profileSchema),
     defaultValues: {
-      userPhoto: 'https://github.com/jfernandesdev.png',
-      name: "Jeferson Fernandes",
-      email: "jfernandes.dev@gmail.com"
+      avatar: user?.avatar,
+      name: user.name,
+      email: user.email,
     }
   });
-
-  const toast = useToast();
 
   const handleUserPhotoSelect = async () => {
     try {
@@ -78,7 +80,7 @@ export function Profile() {
           });
         }
   
-        setValue('userPhoto', photoURI);
+        setValue('avatar', photoURI);
       }
     } catch (error) {
       console.error("Erro ao selecionar nova foto", error); 
@@ -98,7 +100,7 @@ export function Profile() {
         <Center mt="$6" px="$10">
           <Controller 
             control={control}
-            name="userPhoto"
+            name="avatar"
             render={({ field: { value }}) => (
               <UserPhoto
                 source={value ? { uri: value } : userPhotoDefault}
